@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+# Shortcut for creating templated new shell scripts
+set -euo pipefail
+: ${HOSTS:=localhost}
+: ${XPANES_OPT:=-ss}
+red=`tput setaf 1`
+green=`tput setaf 2`
+blue=`tput setaf 4`
+bold=`tput bold; tput setaf 7`
+reset=`tput sgr0`
+
+# -- functions ---
+
+get_abs_path() {
+    local PARENT_DIR
+    local ABS_PATH
+    PARENT_DIR=$(dirname "$1")
+    cd "$PARENT_DIR"
+    ABS_PATH="$(pwd)"/"$(basename "$1")"
+    cd - >/dev/null
+    echo "$ABS_PATH"
+}
+
+# --- cli processing ---
+POSITIONAL=()
+while [[ $# -gt 0 ]]; do
+    key="$1"
+
+    case $key in
+        -w)
+        WEB_SCRIPT="$2"
+        shift # past argument
+        shift # past value
+        break # anything after url will be passed to remote command
+        ;;
+        -h|--help)
+        shift # past argument
+        cat <<EOF
+Usage:
+    rmux [command] [options]
+    rmux -w <url> [options]
+
+General Options:
+    -h, --help      Show help.
+    --version       Displays current version and where it runs from
+    -w <url>        Download script from url and execute it
+
+The list of hosts is loaded from ${bold}HOSTS${reset} environment variable \
+and when this is not defined it will fallback to using localhost, still even \
+in this case it will use ssh.
+EOF
+        exit 0
+        ;;
+        --version)
+        shift
+        echo "rmux ${green}$(python -c 'import rmux; " \
+        "print(rmux.__version__)')${reset} from ${blue}" \
+        "$(get_abs_path `which $0`)${reset}"
+        exit 0
+        ;;
+        *)    # unknown option
+        POSITIONAL+=("$*") # save it in an array for later
+        # shift
+        break
+        ;;
+    esac
+done
+# set -- "${POSITIONAL[@]:-}" # restore positional parameters
+
+if [ "${HOSTS}" == "localhost" ]; then
+    &>2 echo "Warning: using localhost fallback, define HOSTS as " \
+        "a space separated list"
+fi
+
+which xpanes >/dev/null || {
+    >&2 echo "FATAL: xpanes not found, please install it. " \
+        "https://github.com/greymd/tmux-xpanes#installation"
+    exit 2
+}
+
+# detect current project based on .git presence
+PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || true)
+PROJECT_NAME=$(basename "$PROJECT_ROOT")
+REMOTE_DIR=.cache/.rmux/$PROJECT_NAME
+if [[ "$PROJECT_ROOT" != "" ]]; then
+    echo "INFO: Found ${green}$PROJECT_NAME${reset} project on " \
+        "${green}$PROJECT_ROOT${reset}"
+    # generate smart exclude list, based on .gitignore when possible.
+    # See https://stackoverflow.com/a/15373763/99834
+    (
+        cd $PROJECT_ROOT
+        git ls-files --exclude-standard -oi --directory \
+            >$PROJECT_ROOT/.git/ignores.tmp
+    )
+    for HOST in $HOSTS; do
+        set -x
+        ssh $HOST mkdir -p $REMOTE_DIR
+        rsync -ah --no-o --no-g --include .git \
+            --exclude-from=$PROJECT_ROOT/.git/ignores.tmp \
+            $PROJECT_ROOT/ $HOST:$REMOTE_DIR/
+    done
+fi
+
+
+# >&2 echo "DEBUG: arguments $# : $*"
+XPANES_OPT='-ss'
+
+if [[ "${WEB_SCRIPT:-}" != "" ]]; then
+    SCRIPT_FILENAME="${WEB_SCRIPT##*/}"
+    INJECT="curl -s $WEB_SCRIPT > $SCRIPT_FILENAME && "\
+        "chmod +x $SCRIPT_FILENAME && ./$SCRIPT_FILENAME"
+fi
+
+
+if [ "$#" -eq 0 ]; then
+    >&2 echo "INFO: No command specified, just starting ssh sessions"
+    CMD="\${SHELL:-sh} -i <<< 'cd $REMOTE_DIR;${INJECT:-}; exec </dev/tty'"
+else
+    XPANES_OPT='-ss'
+    CMD="\${SHELL:-sh} -i <<< 'cd $REMOTE_DIR;${INJECT:-} $*; exec </dev/tty'"
+fi
+
+xpanes $XPANES_OPT -t \
+    -c "ssh -t -o StrictHostKeyChecking=no -o ForwardX11=no {} \"$CMD\"" $HOSTS

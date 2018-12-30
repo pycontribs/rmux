@@ -24,6 +24,10 @@ exit
 
 # run df on two remote hosts, syncronized windows
 HOSTS="node1 node2" rmux df
+
+# run a script downloaded from the web (installs pip)
+rmux -w https://bootstrap.pypa.io/get-pip.py
+
 ```
 
 If you fail to define the ``HOSTS`` variable the tool will default to localhost

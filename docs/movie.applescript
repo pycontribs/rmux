@@ -2,7 +2,7 @@
 tell application "Finder"
 	set parentpath to POSIX path of (parent of (path to me) as string)
 	set filename to name of (path to me)
-	
+
 	-- display dialog parentpath
 	-- display dialog filename
 end tell
@@ -11,7 +11,7 @@ end tell
 tell application "iTerm"
 	activate
 	create window with default profile
-	
+
 	tell first session of current tab of current window
 		set name to "rmux usage example"
 		set columns to 80
@@ -30,7 +30,7 @@ tell application "iTerm"
 		my info_string("so we are done, time to close our session by typing exit or pressing Ctrl-D")
 		delay 4
 	end tell
-	
+
 	tell application "System Events" to tell process "iTerm"
 		keystroke "d" using control down -- close tmux
 		delay 1
