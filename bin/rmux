@@ -68,13 +68,13 @@ done
 # set -- "${POSITIONAL[@]:-}" # restore positional parameters
 
 if [ "${HOSTS}" == "localhost" ]; then
-    &>2 echo "Warning: using localhost fallback, define HOSTS as " \
-        "a space separated list"
+    &>2 echo "Warning: using localhost fallback, define HOSTS as \
+a space separated list"
 fi
 
 which xpanes >/dev/null || {
-    >&2 echo "FATAL: xpanes not found, please install it. " \
-        "https://github.com/greymd/tmux-xpanes#installation"
+    >&2 echo "FATAL: xpanes not found, please install it. \
+https://github.com/greymd/tmux-xpanes#installation"
     exit 2
 }
 
@@ -83,8 +83,8 @@ PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || true)
 PROJECT_NAME=$(basename "$PROJECT_ROOT")
 REMOTE_DIR=.cache/.rmux/$PROJECT_NAME
 if [[ "$PROJECT_ROOT" != "" ]]; then
-    echo "INFO: Found ${green}$PROJECT_NAME${reset} project on " \
-        "${green}$PROJECT_ROOT${reset}"
+    echo "INFO: Found ${green}$PROJECT_NAME${reset} project on \
+${green}$PROJECT_ROOT${reset}"
     # generate smart exclude list, based on .gitignore when possible.
     # See https://stackoverflow.com/a/15373763/99834
     (
@@ -107,8 +107,8 @@ XPANES_OPT='-ss'
 
 if [[ "${WEB_SCRIPT:-}" != "" ]]; then
     SCRIPT_FILENAME="${WEB_SCRIPT##*/}"
-    INJECT="curl -s $WEB_SCRIPT > $SCRIPT_FILENAME && "\
-        "chmod +x $SCRIPT_FILENAME && ./$SCRIPT_FILENAME"
+    INJECT="curl -s $WEB_SCRIPT > $SCRIPT_FILENAME && \
+chmod +x $SCRIPT_FILENAME && ./$SCRIPT_FILENAME"
 fi
 
 
