@@ -53,9 +53,9 @@ EOF
         ;;
         --version)
         shift
-        echo "rmux ${green}$(python -c 'import rmux; " \
-        "print(rmux.__version__)')${reset} from ${blue}" \
-        "$(get_abs_path `which $0`)${reset}"
+        echo "rmux ${green}$(python -c 'import rmux; \
+print(rmux.__version__)')${reset} from ${blue}\
+$(get_abs_path `which $0`)${reset}"
         exit 0
         ;;
         *)    # unknown option
@@ -116,7 +116,6 @@ if [ "$#" -eq 0 ]; then
     >&2 echo "INFO: No command specified, just starting ssh sessions"
     CMD="\${SHELL:-sh} -i <<< 'cd $REMOTE_DIR;${INJECT:-}; exec </dev/tty'"
 else
-    XPANES_OPT='-ss'
     CMD="\${SHELL:-sh} -i <<< 'cd $REMOTE_DIR;${INJECT:-} $*; exec </dev/tty'"
 fi
 
