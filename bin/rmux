@@ -93,7 +93,6 @@ ${green}$PROJECT_ROOT${reset}"
             >$PROJECT_ROOT/.git/ignores.tmp
     )
     for HOST in $HOSTS; do
-        set -x
         ssh $HOST mkdir -p $REMOTE_DIR
         rsync -ah --no-o --no-g --include .git \
             --exclude-from=$PROJECT_ROOT/.git/ignores.tmp \
