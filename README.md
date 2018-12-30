@@ -10,7 +10,7 @@ on multiple remote machines, synchronized.
 The original purpose was to allow testing local changes to a project on other
 platforms, like running tox on another distribution.
 
-![](docs/movie.gif)
+![](https://raw.githubusercontent.com/pycontribs/rmux/master/docs/movie.gif)
 
 Usage
 -----
