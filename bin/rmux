@@ -102,7 +102,6 @@ fi
 
 
 # >&2 echo "DEBUG: arguments $# : $*"
-XPANES_OPT='-ss'
 
 if [[ "${WEB_SCRIPT:-}" != "" ]]; then
     SCRIPT_FILENAME="${WEB_SCRIPT##*/}"
@@ -114,8 +113,10 @@ fi
 if [ "$#" -eq 0 ]; then
     >&2 echo "INFO: No command specified, just starting ssh sessions"
     CMD="\${SHELL:-sh} -i <<< 'cd $REMOTE_DIR;${INJECT:-}; exec </dev/tty'"
+    XPANES_OPT=''
 else
     CMD="\${SHELL:-sh} -i <<< 'cd $REMOTE_DIR;${INJECT:-} $*; exec </dev/tty'"
+    XPANES_OPT='-ss'
 fi
 
 xpanes $XPANES_OPT -t \
