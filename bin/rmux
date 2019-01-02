@@ -73,9 +73,22 @@ a space separated list"
 fi
 
 which xpanes >/dev/null || {
-    >&2 echo "FATAL: xpanes not found, please install it. \
+    >&2 echo "WARNL: xpanes not found, trying to install it. If I fail try \
+to follow https://github.com/greymd/tmux-xpanes#installation"
+
+    command -v yum && {
+        sudo yum install -y https://github.com/greymd/tmux-xpanes/releases/download/v3.1.0/tmux-xpanes_v3.1.0.rpm
+    }
+    which brew && (brew help >/dev/null) && {
+    # workaround to avoid confusing RHEL brew with MacOS home(brew)
+        brew install tmux-xpanes
+        rehash || true
+    }
+    which xpanes >/dev/null || {
+        >&2 echo "FATAL: xpanes not found, please install it. \
 https://github.com/greymd/tmux-xpanes#installation"
-    exit 2
+        exit 2
+    }
 }
 
 # detect current project based on .git presence
@@ -106,17 +119,16 @@ fi
 if [[ "${WEB_SCRIPT:-}" != "" ]]; then
     SCRIPT_FILENAME="${WEB_SCRIPT##*/}"
     INJECT="curl -s $WEB_SCRIPT > $SCRIPT_FILENAME && \
-chmod +x $SCRIPT_FILENAME && ./$SCRIPT_FILENAME"
+chmod +x $SCRIPT_FILENAME && ./$SCRIPT_FILENAME; "
 fi
 
 
+XPANES_OPT='-ss'
 if [ "$#" -eq 0 ]; then
     >&2 echo "INFO: No command specified, just starting ssh sessions"
-    CMD="\${SHELL:-sh} -i <<< 'cd $REMOTE_DIR;${INJECT:-}; exec </dev/tty'"
-    XPANES_OPT=''
+    CMD="\${SHELL:-sh} -i <<< 'cd ~/$REMOTE_DIR;${INJECT:-}exec </dev/tty'"
 else
-    CMD="\${SHELL:-sh} -i <<< 'cd $REMOTE_DIR;${INJECT:-} $*; exec </dev/tty'"
-    XPANES_OPT='-ss'
+    CMD="\${SHELL:-sh} -i <<< 'cd ~/$REMOTE_DIR;${INJECT:-} $*;exec </dev/tty'"
 fi
 
 xpanes $XPANES_OPT -t \
