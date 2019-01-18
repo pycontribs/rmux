@@ -124,11 +124,12 @@ fi
 
 
 XPANES_OPT='-ss'
+# -l added to shell to make it act as login and load user profile (vars)
 if [ "$#" -eq 0 ]; then
     >&2 echo "INFO: No command specified, just starting ssh sessions"
-    CMD="\${SHELL:-sh} -i <<< 'cd ~/$REMOTE_DIR;${INJECT:-}exec </dev/tty'"
+    CMD="\${SHELL:-sh} -i -l <<< 'cd ~/$REMOTE_DIR;${INJECT:-}exec </dev/tty'"
 else
-    CMD="\${SHELL:-sh} -i <<< 'cd ~/$REMOTE_DIR;${INJECT:-} $*;exec </dev/tty'"
+    CMD="\${SHELL:-sh} -i -l <<< 'cd ~/$REMOTE_DIR;${INJECT:-} $*;exec </dev/tty'"
 fi
 
 xpanes $XPANES_OPT -t \
