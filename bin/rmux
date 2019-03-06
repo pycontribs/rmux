@@ -108,7 +108,7 @@ ${green}$PROJECT_ROOT${reset}"
     for HOST in $HOSTS; do
         ssh $HOST mkdir -p $REMOTE_DIR
         rsync -ah --no-o --no-g --delete-after --include .git \
-            --exclude-from=$PROJECT_ROOT/.git/ignores.tmp \
+            --exclude-from=$PROJECT_ROOT/.git/ignores.tmp --exclude '__pycache__' \
             $PROJECT_ROOT/ $HOST:$REMOTE_DIR/
     done
 fi
