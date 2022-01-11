@@ -52,10 +52,6 @@ output/*/index.html
 # Sphinx
 doc/build
 
-# pbr generates these
-AUTHORS
-ChangeLog
-
 # Files created by releasenotes build
 releasenotes/build
 docs/movie.app

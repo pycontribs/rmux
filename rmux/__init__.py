@@ -11,9 +11,13 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from pkg_resources import get_distribution, DistributionNotFound
+try:
+    __version__ = get_distribution(__name__).version
+except DistributionNotFound:
+    # package is not installed
+    pass
 
-import pbr.version
 
-
-__version__ = pbr.version.VersionInfo(
-    'rmux').version_string()
+def main():
+    print("123")
