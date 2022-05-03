@@ -8,6 +8,7 @@
 # with:
 #
 # git config --global core.excludesfile '~/.gitignore'
+__pycache__
 
 # Bytecompiled Python
 *.py[cod]
@@ -51,10 +52,6 @@ output/*/index.html
 
 # Sphinx
 doc/build
-
-# pbr generates these
-AUTHORS
-ChangeLog
 
 # Files created by releasenotes build
 releasenotes/build

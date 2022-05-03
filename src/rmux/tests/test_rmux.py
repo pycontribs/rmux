@@ -13,9 +13,6 @@
 # under the License.
 
 """
-test_rmux
-----------------------------------
-
 Tests for `rmux` module.
 """
 
@@ -23,6 +20,5 @@ from rmux.tests import base
 
 
 class TestRmux(base.TestCase):
-
     def test_something(self):
         pass
