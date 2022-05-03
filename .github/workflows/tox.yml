@@ -1,4 +1,4 @@
-name: gh
+name: tox
 
 on:
   create:  # is used for publishing to PyPI and TestPyPI
@@ -8,35 +8,24 @@ on:
     branches:  # any integration branch but not tag
     - "main"
   pull_request:
-  release:
-    types:
-    - published  # It seems that you can publish directly without creating
-  schedule:
-  - cron: 1 0 * * *  # Run daily at 0:01 UTC
-  # Run every Friday at 18:02 UTC
-  # https://crontab.guru/#2_18_*_*_5
-  # - cron: 2 18 * * 5
 
 jobs:
   linters:
-    name: >-
-      ${{ matrix.env.TOXENV }}
+    name: ${{ matrix.env.TOXENV }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         python-version:
-        - 3.9
+        - "3.10"
         os:
-        - ubuntu-20.04
+        - ubuntu-latest
         env:
         - TOXENV: lint
         - TOXENV: packaging
     env:
       TOX_PARALLEL_NO_SPINNER: 1
       FORCE_COLOR: 1
-
-    continue-on-error: ${{ matrix.env.TOXENV == 'eco' }}
 
     steps:
     - name: Check out src from Git
@@ -76,51 +65,36 @@ jobs:
         path: .tox/**/log/
 
   unit:
-    name: >-
-      ${{ matrix.tox_env }}@${{ matrix.os }}
+    name: ${{ matrix.tox_env }}@${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         python-version:
         # keep list sorted as it determines UI order too
-        - 3.6
-        - 3.7
         - 3.8
         - 3.9
         - "3.10"
         os:
         # https://help.github.com/en/actions/reference/virtual-environments-for-github-hosted-runners
-        - ubuntu-20.04
+        - ubuntu-latest
         # - windows-latest
         # - windows-2016
         include:
-        - tox_env: py36
-          os: ubuntu-20.04
-          python-version: 3.6
-        - tox_env: py37
-          os: ubuntu-20.04
-          python-version: 3.7
         - tox_env: py38
-          os: ubuntu-20.04
+          os: ubuntu-latest
           python-version: 3.8
           devel: true
         - tox_env: py39
-          os: ubuntu-20.04
+          os: ubuntu-latest
           python-version: 3.9
           devel: true
         - tox_env: py310
-          os: ubuntu-20.04
+          os: ubuntu-latest
           python-version: "3.10"
-          devel: true
-          skip_ansible29: true
-        - tox_env: py36
-          os: macOS-latest
-          python-version: 3.6
         - tox_env: py310
           os: macOS-latest
           python-version: "3.10"
-          skip_ansible29: true
 
     env:
       TOX_PARALLEL_NO_SPINNER: 1
@@ -132,6 +106,18 @@ jobs:
       run: |
         sudo sysctl -w net.link.generic.system.hwcksum_tx=0
         sudo sysctl -w net.link.generic.system.hwcksum_rx=0
+
+    - name: Enable ssh to localhost
+      run: |
+        set -ex
+        ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N ''
+        cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
+        ssh-keyscan localhost >> ~/.ssh/known_hosts
+        chmod 600 ~/.ssh/id_ed25519
+        chmod 644 ~/.ssh/known_hosts
+        chmod 700 ~/.ssh
+        ssh -v localhost id
+
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0  # needed by setuptools-scm

@@ -1,4 +1,14 @@
 ---
+ci:
+  # format compatible with commitlint
+  autoupdate_commit_msg: "chore: pre-commit autoupdate"
+  autoupdate_schedule: quarterly
+  autofix_commit_msg: |
+    chore: auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+default_language_version:
+  python: python3.10
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.1.0
