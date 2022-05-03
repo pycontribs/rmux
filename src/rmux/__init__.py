@@ -12,12 +12,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from pkg_resources import get_distribution, DistributionNotFound
+
 try:
     __version__ = get_distribution(__name__).version
 except DistributionNotFound:
     # package is not installed
     pass
-
-
-def main():
-    print("123")

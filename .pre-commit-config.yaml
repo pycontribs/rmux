@@ -11,11 +11,14 @@ repos:
       - id: check-merge-conflict
       - id: check-symlinks
       - id: check-vcs-permalinks
-      - id: flake8
       - id: debug-statements
       - id: requirements-txt-fixer
       - id: check-yaml
         files: .*\.(yaml|yml)$
+  - repo: https://github.com/psf/black
+    rev: 22.3.0
+    hooks:
+      - id: black
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.26.3
     hooks:
@@ -26,7 +29,13 @@ repos:
     hooks:
       - id: bashate
         entry: bashate -i E006
-  - repo: git://github.com/Lucas-C/pre-commit-hooks-markup
-    rev: v1.0.1
+  - repo: https://github.com/pycqa/flake8.git
+    rev: 4.0.1
     hooks:
-      - id: rst-linter
+      - id: flake8
+        additional_dependencies:
+          - flake8-2020>=1.6.0
+          # - flake8-docstrings>=1.5.0
+          - flake8-pytest-style>=1.2.2
+          - flake8-rst-docstrings>=0.2.3
+          - flake8-rst>=0.8.0

@@ -8,6 +8,7 @@
 # with:
 #
 # git config --global core.excludesfile '~/.gitignore'
+__pycache__
 
 # Bytecompiled Python
 *.py[cod]
